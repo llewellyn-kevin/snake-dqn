@@ -1,3 +1,6 @@
+from enum import Enum
+
+
 class Vector:
     x: int = 0
     y: int = 0
@@ -21,3 +24,22 @@ class Vector:
 
 def add_vectors(a: Vector, b: Vector) -> Vector:
     return Vector(a.x + b.x, a.y + b.y)
+
+
+class Tile(Enum):
+    EMPTY = 0
+    FOOD = 1
+    SNAKE = 2
+
+
+class UserAction(Enum):
+    MOVE_RIGHT = 0
+    MOVE_LEFT = 1
+    MOVE_DOWN = 2
+    MOVE_UP = 3
+
+
+class CurrentGameState(Enum):
+    PLAYING = 0
+    WIN = 1
+    LOSS = 2

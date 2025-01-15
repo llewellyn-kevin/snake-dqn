@@ -1,14 +1,8 @@
-from game.data_objects import Vector
+from game.data_objects import Vector, Tile, CurrentGameState
 from game.snake import Snake
 from enum import Enum
 from random import randint
 from abc import ABC, abstractmethod
-
-
-class Tile(Enum):
-    EMPTY = 0
-    FOOD = 1
-    SNAKE = 2
 
 
 class FoodGenerator(ABC):
@@ -18,10 +12,7 @@ class FoodGenerator(ABC):
 
 
 class RandomGenerator(FoodGenerator):
-    def next(self, tiles: list[list[int]], count=0) -> Vector:
-        if count > (len(tiles) * len(tiles[0])):
-            return None
-
+    def next(self, tiles: list[list[int]]) -> Vector:
         new_food = self.random_vector(len(tiles[0])-1, len(tiles)-1)
         if tiles[new_food.y][new_food.x] == Tile.EMPTY:
             return new_food
@@ -48,33 +39,43 @@ class GameBoard:
         self.food_generator = food_generator
 
 
+    def game_won(self) -> bool:
+        for i in self.tiles:
+            for j in i:
+                if j == Tile.EMPTY:
+                    return False
+        return True
+
+
     def add_snake(self, snake: Snake):
         self.snake = snake
         for body_location in snake.body:
             self.tiles[body_location.y][body_location.x] = Tile.SNAKE
 
 
-    def update(self) -> bool:
+    def update(self) -> CurrentGameState:
         next = self.snake.get_next_location()
         if next.y < 0 or next.y >= len(self.tiles):
-            return False
+            return CurrentGameState.LOSS
         if next.x < 0 or next.x >= len(self.tiles[0]):
-            return False
+            return CurrentGameState.LOSS
+
         tile_type = self.tiles[next.y][next.x]
+
         if tile_type == Tile.SNAKE:
-            return False
+            return CurrentGameState.LOSS
 
         if tile_type == Tile.FOOD:
             self.snake.grow()
             self.score = self.score + 1
+            if self.game_won():
+                return CurrentGameState.WIN
             new_food = self.food_generator.next(self.tiles)
-            if new_food is not None:
-                self.tiles[new_food.y][new_food.x] = Tile.FOOD
-            # ELSE WIN!
+            self.tiles[new_food.y][new_food.x] = Tile.FOOD
         
         self.snake.move()
         self.reset_board()
-        return True
+        return CurrentGameState.PLAYING
 
 
     def reset_board(self):

@@ -1,6 +1,6 @@
 import unittest
-from game.data_objects import Vector
-from game.game_board import GameBoard, Tile, FoodGenerator
+from game.data_objects import Vector, Tile, CurrentGameState
+from game.game_board import GameBoard, FoodGenerator
 from game.snake import Snake
 
 
@@ -111,29 +111,29 @@ class GameBoardTest(unittest.TestCase):
         board = GameBoard(width=6, height=8)
         board.add_snake(snake)
 
-        alive = board.update()
-        self.assertFalse(alive)
+        new_state = board.update()
+        self.assertEqual(CurrentGameState.LOSS, new_state)
 
         snake = Snake(head=Vector(5, 2), tail=Vector(5, 0), direction=Vector(1, 0))
         board = GameBoard(width=6, height=8)
         board.add_snake(snake)
 
-        alive = board.update()
-        self.assertFalse(alive)
+        new_state = board.update()
+        self.assertEqual(CurrentGameState.LOSS, new_state)
 
         snake = Snake(head=Vector(2, 0), tail=Vector(0, 0), direction=Vector(0, -1))
         board = GameBoard(width=6, height=8)
         board.add_snake(snake)
 
-        alive = board.update()
-        self.assertFalse(alive)
+        new_state = board.update()
+        self.assertEqual(CurrentGameState.LOSS, new_state)
 
         snake = Snake(head=Vector(2, 7), tail=Vector(0, 7), direction=Vector(0, 1))
         board = GameBoard(width=6, height=8)
         board.add_snake(snake)
 
-        alive = board.update()
-        self.assertFalse(alive)
+        new_state = board.update()
+        self.assertEqual(CurrentGameState.LOSS, new_state)
 
 
     def test_it_dies_on_itself(self):
@@ -141,16 +141,16 @@ class GameBoardTest(unittest.TestCase):
         board = GameBoard(width=6, height=8)
         board.add_snake(snake)
 
-        alive = board.update()
-        self.assertTrue(alive)
+        new_state = board.update()
+        self.assertEqual(CurrentGameState.PLAYING, new_state)
         board.snake.change_direction(Vector(-1, 0))
-        alive = board.update()
-        self.assertTrue(alive)
-        alive = board.update()
-        self.assertTrue(alive)
+        new_state = board.update()
+        self.assertEqual(CurrentGameState.PLAYING, new_state)
+        new_state = board.update()
+        self.assertEqual(CurrentGameState.PLAYING, new_state)
         board.snake.change_direction(Vector(0, -1))
-        alive = board.update()
-        self.assertFalse(alive)
+        new_state = board.update()
+        self.assertEqual(CurrentGameState.LOSS, new_state)
 
 
     def test_it_can_eat_food(self):
