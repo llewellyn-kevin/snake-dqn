@@ -21,4 +21,4 @@ class LayoutDriver(GameDriver):
 
 if __name__ == "__main__":
     driver = LayoutDriver()
-    run_ui(driver, GameMode.MAIN_MENU)
+    run_ui(driver, GameMode.WON)

@@ -67,27 +67,48 @@ def draw_main_menu(driver: GameDriver):
     return nested
 
 def draw_playing(driver: GameDriver, new_keys: dict):
+    global current_mode
     handle_input(driver, new_keys)
     screen.fill(BG_COLOR)
     state = driver.get_next_state()
     for y, row in enumerate(state.tiles):
         for x, tile in enumerate(row):
             draw_grid_square(40 * x + 24, 40 * y + 104, tile_color_map[tile])
+    if state.state == CurrentGameState.LOSS:
+        current_mode = GameMode.DEAD
+    if state.state == CurrentGameState.WIN:
+        current_mode = GameMode.WON
     draw_score(state.score)
     pygame.display.flip()
 
-def draw_dead(driver: GameDriver, new_keys: dict):
-    pass
+def draw_dead(driver: GameDriver):
+    button = Button(screen.get_width() / 2 - 174, screen.get_height() / 2, 344, 60, button_text="Try Again", onclick_function=start_game(driver), one_press=False, screen=screen)
+    def nested(driver: GameDriver, new_keys: dict):
+        screen.fill(BG_COLOR)
 
-def draw_won(driver: GameDriver, new_keys: dict):
-    pass
+        score_font.render_to(screen, (screen.get_width() / 2 - 117, screen.get_height() / 2 - 104), "You Died", (255, 255, 255))
+        button.process()
+
+        pygame.display.flip()
+    return nested
+
+def draw_won(driver: GameDriver):
+    button = Button(screen.get_width() / 2 - 174, screen.get_height() / 2, 344, 60, button_text="Do it Again", onclick_function=start_game(driver), one_press=False, screen=screen)
+    def nested(driver: GameDriver, new_keys: dict):
+        screen.fill(BG_COLOR)
+
+        score_font.render_to(screen, (screen.get_width() / 2 - 110, screen.get_height() / 2 - 104), "You Won", (255, 255, 255))
+        button.process()
+
+        pygame.display.flip()
+    return nested
 
 def run_ui(driver: GameDriver, mode: GameMode = GameMode.MAIN_MENU):
     draw_map = {
         GameMode.MAIN_MENU: draw_main_menu(driver),
         GameMode.PLAYING: draw_playing,
-        GameMode.DEAD: draw_dead,
-        GameMode.WON: draw_won,
+        GameMode.DEAD: draw_dead(driver),
+        GameMode.WON: draw_won(driver),
     }
 
     global current_mode
