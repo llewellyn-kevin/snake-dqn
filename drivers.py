@@ -10,3 +10,7 @@ class GameDriver(ABC):
     @abstractmethod
     def log_user_action(self, action: UserAction) -> None:
         pass
+
+    @abstractmethod
+    def restart(self):
+        pass

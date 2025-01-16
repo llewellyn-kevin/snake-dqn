@@ -20,6 +20,9 @@ class Vector:
 def add_vectors(a: Vector, b: Vector) -> Vector:
     return Vector(a.x + b.x, a.y + b.y)
 
+def scalar_mult(a: Vector, scale: int) -> Vector:
+    return Vector(a.x * scale, a.y * scale)
+
 class Tile(Enum):
     EMPTY = 0
     FOOD = 1

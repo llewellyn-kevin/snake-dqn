@@ -30,5 +30,15 @@ class GameState:
         self.board.add_snake(Snake(head=Vector(3, 1), tail=Vector(1, 1)))
         self.board.add_food(self.board.food_generator.next(self.board.tiles))
 
+    def do_player_action(self, message: UserInputMessage):
+        if message.action == UserAction.MOVE_UP:
+            self.board.snake.change_direction(Vector(0, -1))
+        if message.action == UserAction.MOVE_DOWN:
+            self.board.snake.change_direction(Vector(0, 1))
+        if message.action == UserAction.MOVE_RIGHT:
+            self.board.snake.change_direction(Vector(1, 0))
+        if message.action == UserAction.MOVE_LEFT:
+            self.board.snake.change_direction(Vector(-1, 0))
+
     def to_pygame(self) -> PygameStateUpdate:
         return PygameStateUpdate(self.board.tiles, self.board.score, self.current_state)
