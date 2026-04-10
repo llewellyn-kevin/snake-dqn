@@ -33,6 +33,7 @@ class UserAction(Enum):
     MOVE_LEFT = 1
     MOVE_DOWN = 2
     MOVE_UP = 3
+    NOTHING = 4
 
 class CurrentGameState(Enum):
     PLAYING = 0
