@@ -20,6 +20,10 @@ class TestVector(unittest.TestCase):
             data_objects.Vector(x=4, y=2),
         )
 
+    def test_vector_from_string(self):
+        s = '<3, 9>'
+        expected = data_objects.Vector(x=3, y=9)
+        self.assertEqual(expected, data_objects.Vector.from_string(s))
 
     def test_adding_vectors(self):
         expected = data_objects.Vector(4, 3)

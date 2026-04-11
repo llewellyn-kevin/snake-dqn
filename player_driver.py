@@ -1,6 +1,6 @@
-from drivers import GameDriver
+from drivers import GameDriver, ReplayData
 from game.game_state import GameState, UserInputMessage, PygameStateUpdate
-from game.data_objects import UserAction
+from game.data_objects import UserAction, Vector
 from ui.window import run_ui, GameMode
 import time
 from pygame import math
@@ -13,15 +13,16 @@ class PlayerDriver(GameDriver):
     max_score: int
     next_tick: float
     tick_actions: list[UserAction] = []
+    food_list: list[Vector] = []
 
     def __init__(self):
         self.game = GameState()
         self.max_score = len(self.game.board.tiles) * len(self.game.board.tiles[0])
-        self.next_tick = time.time() + slowest_frame
-        self.tick_actions = [UserAction.NOTHING]
+        self.restart()
 
     def get_next_state(self) -> PygameStateUpdate:
         state = self.game.to_pygame()
+        self.food_list = self.game.food_list
         if time.time() >= self.next_tick:
             self.next_tick = self.next_tick + self.get_tick_speed()
             self.tick_actions.append(UserAction.NOTHING)
@@ -35,12 +36,21 @@ class PlayerDriver(GameDriver):
         return math.lerp(slowest_frame, fastest_frame, score_percentile)
 
     def log_user_action(self, action: UserAction) -> None:
-        tick_actions[-1] = action
+        self.tick_actions[-1] = action
         self.game.do_player_action(UserInputMessage(action, time.time()))
 
     def restart(self) -> None:
         self.game = GameState()
         self.next_tick = time.time() + slowest_frame
+        self.tick_actions = [UserAction.NOTHING]
+        self.game.restart()
+        self.food_list = self.game.food_list
+
+    def get_replay_data(self) -> ReplayData:
+        return ReplayData(self.tick_actions, self.food_list)
+
+    def should_save_replay(self):
+        return True
 
 if __name__ == "__main__":
     driver = PlayerDriver()

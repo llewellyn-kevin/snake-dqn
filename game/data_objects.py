@@ -11,6 +11,11 @@ class Vector:
     def __str__(self):
         return '<{}, {}>'.format(self.x, self.y)
 
+    def from_string(s: str):
+        s = s.strip("<>")
+        x, y = s.split(",")
+        return Vector(int(x), int(y))
+
     def __eq__(self, o):
         if not isinstance(o, Vector):
             return NotImplemented

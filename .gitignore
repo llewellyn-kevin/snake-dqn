@@ -1,3 +1,5 @@
+replays/*
 .venv
 pycache
 __pycache__
+.ipynb_checkpoints

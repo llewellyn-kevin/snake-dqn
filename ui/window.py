@@ -1,9 +1,11 @@
 import pygame
+import time
 from game.data_objects import Tile, CurrentGameState, UserAction
 from game.game_state import PygameStateUpdate
-from drivers import GameDriver
+from drivers import GameDriver, ReplayData
 from enum import Enum
 from ui.button import Button
+from pathlib import Path
 
 pygame.init()
 
@@ -55,6 +57,21 @@ def start_game(driver: GameDriver):
         driver.restart()
     return nested
 
+def save_replay(driver: GameDriver):
+    if not driver.should_save_replay():
+        return
+    
+    data = driver.get_replay_data()
+    if data is None:
+        print("Replay data is None, not saving")
+        return
+
+    filename = f"replays/replay_{int(time.time())}.txt"
+    print(f"Saving replay to {filename}")
+    Path("replays").mkdir(parents=True, exist_ok=True)
+    Path(filename).touch(exist_ok=True)
+    Path(filename).write_text(str(data))
+
 def draw_main_menu(driver: GameDriver):
     button = Button(screen.get_width() / 2 - 174, screen.get_height() / 2, 344, 60, button_text="Start", onclick_function=start_game(driver), one_press=False, screen=screen)
     def nested(driver: GameDriver, new_keys: dict):
@@ -75,8 +92,10 @@ def draw_playing(driver: GameDriver, new_keys: dict):
         for x, tile in enumerate(row):
             draw_grid_square(40 * x + 24, 40 * y + 104, tile_color_map[tile])
     if state.state == CurrentGameState.LOSS:
+        save_replay(driver)
         current_mode = GameMode.DEAD
     if state.state == CurrentGameState.WIN:
+        save_replay(driver)
         current_mode = GameMode.WON
     draw_score(state.score)
     pygame.display.flip()

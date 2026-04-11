@@ -25,6 +25,7 @@ class GameBoard:
     snake: Snake
     score: int
     food_generator: FoodGenerator
+    added_food: Vector
 
     def __init__(self, width: int, height: int, food_generator: FoodGenerator = RandomGenerator()):
         self.width = width
@@ -63,7 +64,7 @@ class GameBoard:
             if self.game_won():
                 return CurrentGameState.WIN
             new_food = self.food_generator.next(self.tiles)
-            self.tiles[new_food.y][new_food.x] = Tile.FOOD
+            self.add_food(new_food)
         
         self.snake.move()
         self.reset_board()
@@ -78,4 +79,5 @@ class GameBoard:
             self.tiles[body_segment.y][body_segment.x] = Tile.SNAKE
 
     def add_food(self, location: Vector):
+        self.added_food = location
         self.tiles[location.y][location.x] = Tile.FOOD
