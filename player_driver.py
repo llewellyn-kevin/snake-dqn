@@ -4,6 +4,7 @@ from game.data_objects import UserAction, Vector
 from ui.window import run_ui, GameMode
 import time
 from pygame import math
+import argparse
 
 slowest_frame = 1 / 4
 fastest_frame = 1 / 20
@@ -14,8 +15,10 @@ class PlayerDriver(GameDriver):
     next_tick: float
     tick_actions: list[UserAction] = []
     food_list: list[Vector] = []
+    save_replay: bool
 
-    def __init__(self):
+    def __init__(self, save_replay: bool = False):
+        self.save_replay = save_replay
         self.game = GameState()
         self.max_score = len(self.game.board.tiles) * len(self.game.board.tiles[0])
         self.restart()
@@ -50,8 +53,12 @@ class PlayerDriver(GameDriver):
         return ReplayData(self.tick_actions, self.food_list)
 
     def should_save_replay(self):
-        return True
+        return self.save_replay
 
 if __name__ == "__main__":
-    driver = PlayerDriver()
+    parser = argparse.ArgumentParser(description="Play a game of snake using WASD for controls.")
+    parser.add_argument("--save-replay", "-r", action="store_true", help="Whether to save a replay of the game after it ends.")
+    args = parser.parse_args()
+
+    driver = PlayerDriver(save_replay=args.save_replay)
     run_ui(driver, GameMode.MAIN_MENU)

@@ -27,9 +27,11 @@ class ReplayDriver(GameDriver):
     tick_actions: list[UserAction] = []
     food_list: list[Vector] = []
     cached_data: ReplayData
+    speed: float
 
-    def __init__(self, replay_data: ReplayData):
+    def __init__(self, replay_data: ReplayData, speed: int):
         self.cached_data = replay_data
+        self.speed = 1 / speed
         self.game = GameState(food_generator=ListGenerator(replay_data.food_list))
         self.next_tick = time.time() + self.get_tick_speed()
         self.tick_actions = replay_data.tick_actions
@@ -49,19 +51,19 @@ class ReplayDriver(GameDriver):
         return state
 
     def get_tick_speed(self) -> float:
-        return 1 / 20
+        return self.speed
 
     def log_user_action(self, action) -> None:
         pass
 
     def restart(self) -> None:
         self.tick_count = 0
-        self.__init__(self.cached_data)
-
+        self.__init__(self.cached_data, 1 / self.speed)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Replay a game of snake")
     parser.add_argument("replay", type=str, help="The replay file to load")
+    parser.add_argument("--speed", "-s", type=float, help="The speed to play the replay at (in frames per second)", default=20)
     args = parser.parse_args()
 
     replay_data = None
@@ -70,11 +72,16 @@ if __name__ == "__main__":
             replay_data = ReplayData.from_string(f.read())
     except Exception as e:
         print(f"Error loading replay data, could not load file: {args.replay}")
+        print(e)
         exit()
 
     if replay_data is None:
         print("No replay data found")
         exit()
 
-    driver = ReplayDriver(replay_data)
+    if args.speed < 1:
+        print("Speed must be a positive number greater than or equal to 1")
+        exit()
+
+    driver = ReplayDriver(replay_data, speed=args.speed)
     run_ui(driver, GameMode.MAIN_MENU)
